@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud Storage</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <span class="logo-icon">☁</span>
+            <span>SimbaStorage</span>
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a href="#" class="nav-item active" id="dashboardNav">
+                <span>🏠</span>
+                Dashboard
+            </a>
+
+            <a href="#" class="nav-item" id="myFilesNav">
+                <span>📁</span>
+                My Files
+            </a>
+
+            <a href="#" class="nav-item" id="favoritesNav">
+                <span>⭐</span>
+                Favorites
+            </a>
+
+            <a href="#" class="nav-item" id="trashNav">
+                <span>🗑️</span>
+                Trash
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="#" class="nav-item">
+                <span>⚙️</span>
+                Settings
+            </a>
+
+            <button id="logoutBtn"
+                    class="logout-button">
+
+                <span>🚪</span>
+                Logout
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <header class="top-header">
+
+            <div class="mobile-logo">
+                ☁ CloudBox
+            </div>
+
+            <div class="header-spacer"></div>
+
+            <div class="user-area">
+
+                <div class="notification">
+                    🔔
+                </div>
+
+                <div class="user-avatar">
+                    I
+                </div>
+
+                <div class="user-details">
+
+                    <span class="user-name"
+                          id="usernameDisplay">
+                        Welcome
+                    </span>
+
+                    <span class="user-role">
+                        Personal Account
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <section class="content" id="dashboardSection">
+
+
+            <!-- WELCOME -->
+
+            <div class="welcome-section">
+
+                <div>
+
+                    <h1>
+                        Welcome back 👋
+                    </h1>
+
+                    <p>
+                        Manage your files securely in one place.
+                    </p>
+
+                </div>
+
+
+                <button id="uploadBtn"
+                        class="upload-button">
+
+                    <span>＋</span>
+                    Upload File
+
+                </button>
+
+                <input
+                        type="file"
+                        id="fileInput"
+                        hidden
+                >
+
+            </div>
+
+
+            <!-- ================= STATS ================= -->
+
+            <div class="stats-container">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">
+                        📁
+                    </div>
+
+                    <div>
+
+                        <p>Total Files</p>
+
+                        <h2 id="totalFiles">
+                            --
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon purple">
+                        💾
+                    </div>
+
+                    <div>
+
+                        <p>Storage Used</p>
+
+                        <h2 id="storageUsed">
+                            --
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        ☁
+                    </div>
+
+                    <div>
+
+                        <p>Cloud Storage</p>
+
+                        <h2>
+                            SimbaBase
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ================= FILE SECTION ================= -->
+
+            <div class="file-section" id="myFilesSection">
+
+
+                <div class="file-section-top">
+
+                    <div>
+
+                        <h2>
+                            My Files
+                        </h2>
+
+                        <p>
+                            Your uploaded files
+                        </p>
+
+                    </div>
+
+
+                    <div class="file-tools">
+
+                        <div class="search-box">
+
+                            <span>🔍</span>
+
+                            <input
+                                    type="text"
+                                    id="searchInput"
+                                    placeholder="Search files..."
+                            >
+
+                        </div>
+
+
+                        <select id="sortSelect" class="sort-select">
+                            <option value="newest">🕒 Newest</option>
+                            <option value="oldest">🕒 Oldest</option>
+                            <option value="nameAsc">🔤 Name A-Z</option>
+                            <option value="nameDesc">🔤 Name Z-A</option>
+                            <option value="largest">📦 Largest</option>
+                            <option value="smallest">📦 Smallest</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Upload message -->
+
+                <p id="uploadMessage"
+                   class="upload-message">
+                </p>
+
+
+                <!-- FILE LIST -->
+
+                <div id="fileList"
+                     class="file-list">
+
+                    <div class="loading">
+                        Loading files...
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+<div id="deleteModal" class="modal-overlay">
+
+    <div class="delete-modal">
+
+        <div class="delete-icon">
+            🗑️
+        </div>
+
+        <h2>Delete File?</h2>
+
+        <p>
+            Are you sure you want to delete this file?
+        </p>
+
+        <div class="modal-actions">
+
+            <button
+                    id="cancelDeleteBtn"
+                    class="cancel-delete-btn">
+                Cancel
+            </button>
+
+            <button
+                    id="confirmDeleteBtn"
+                    class="confirm-delete-btn">
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="../js/dashboard.js"></script>
+
+
+
+</body>
+
+</html>

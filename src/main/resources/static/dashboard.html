@@ -3,112 +3,152 @@
 
 <head>
 
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Cloud Storage</title>
+    <title>Cloud Storage - Dashboard</title>
 
     <link rel="stylesheet"
           href="css/style.css">
 
 </head>
 
-<body>
 
-<div class="app-container">
+<body class="dashboard-page">
 
-    <!-- ================= SIDEBAR ================= -->
+<div class="dashboard-layout">
+
+
+    <!-- =================================================
+         SIDEBAR
+         ================================================= -->
 
     <aside class="sidebar">
 
-        <div class="logo">
-            <span class="logo-icon">☁</span>
-            <span>SimbaStorage</span>
+        <div class="sidebar-logo">
+
+            <div class="sidebar-logo-icon">
+                ☁
+            </div>
+
+            <span>
+                SimbaStorage
+            </span>
+
         </div>
 
 
         <nav class="sidebar-nav">
 
-            <a href="#" class="nav-item active" id="dashboardNav">
+            <a href="dashboard.html"
+               class="sidebar-link active">
+
                 <span>🏠</span>
-                Dashboard
+                <span>Dashboard</span>
+
             </a>
 
-            <a href="#" class="nav-item" id="myFilesNav">
+
+            <a href="#files"
+               class="sidebar-link">
+
                 <span>📁</span>
-                My Files
+                <span>My Files</span>
+
             </a>
 
-            <a href="#" class="nav-item" id="favoritesNav">
+
+            <a href="#favorites"
+               class="sidebar-link">
+
                 <span>⭐</span>
-                Favorites
+                <span>Favorites</span>
+
             </a>
 
-            <a href="#" class="nav-item" id="trashNav">
+
+            <a href="#trash"
+               class="sidebar-link">
+
                 <span>🗑️</span>
-                Trash
+                <span>Trash</span>
+
             </a>
 
         </nav>
 
+
         <div class="sidebar-bottom">
 
-            <a href="#" class="nav-item">
+            <a href="#settings"
+               class="sidebar-link">
+
                 <span>⚙️</span>
-                Settings
+                <span>Settings</span>
+
             </a>
 
-            <button id="logoutBtn"
-                    class="logout-button">
+
+            <a href="login.html"
+               class="sidebar-link logout-link"
+               onclick="logout()">
 
                 <span>🚪</span>
-                Logout
+                <span>Logout</span>
 
-            </button>
+            </a>
 
         </div>
 
     </aside>
 
 
-    <!-- ================= MAIN ================= -->
 
-    <main class="main-content">
+    <!-- =================================================
+         MAIN CONTENT
+         ================================================= -->
+
+    <main class="dashboard-main">
 
 
-        <!-- HEADER -->
+        <!-- =================================================
+             TOP HEADER
+             ================================================= -->
 
-        <header class="top-header">
+        <header class="dashboard-header">
 
-            <div class="mobile-logo">
-                ☁ CloudBox
-            </div>
+            <div></div>
 
-            <div class="header-spacer"></div>
+            <div class="header-right">
 
-            <div class="user-area">
+                <button
+                        type="button"
+                        class="notification-button">
 
-                <div class="notification">
                     🔔
-                </div>
 
-                <div class="user-avatar">
-                    I
-                </div>
+                </button>
 
-                <div class="user-details">
 
-                    <span class="user-name"
-                          id="usernameDisplay">
-                        Welcome
-                    </span>
+                <div class="profile-area">
 
-                    <span class="user-role">
-                        Personal Account
-                    </span>
+                    <div class="profile-avatar">
+                        I
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong id="headerUsername">
+                            Welcome
+                        </strong>
+
+                        <small>
+                            Personal Account
+                        </small>
+
+                    </div>
 
                 </div>
 
@@ -117,49 +157,64 @@
         </header>
 
 
-        <!-- CONTENT -->
 
-        <section class="content" id="dashboardSection">
+        <!-- =================================================
+             CONTENT
+             ================================================= -->
+
+        <section class="dashboard-content">
 
 
-            <!-- WELCOME -->
+            <!-- =================================================
+                 WELCOME
+                 ================================================= -->
 
-            <div class="welcome-section">
+            <div class="welcome-row">
 
-                <div>
+                <div class="welcome-text">
 
                     <h1>
-                        Welcome back 👋
+                        Welcome back
+                        <span>👋</span>
                     </h1>
 
                     <p>
-                        Manage your files securely in one place.
+                        Manage your files securely
+                        in one place.
                     </p>
 
                 </div>
 
 
-                <button id="uploadBtn"
-                        class="upload-button">
+                <div class="welcome-upload">
 
-                    <span>＋</span>
-                    Upload File
+                    <input
+                            type="file"
+                            id="fileInput"
+                            style="display: none;">
 
-                </button>
+                    <button
+                            id="uploadBtn"
+                            type="button"
+                            class="upload-btn">
 
-                <input
-                        type="file"
-                        id="fileInput"
-                        hidden
-                >
+                        + Upload File
+
+                    </button>
+
+                </div>
 
             </div>
 
 
-            <!-- ================= STATS ================= -->
+            <!-- =================================================
+                 STATISTICS
+                 ================================================= -->
 
-            <div class="stats-container">
+            <div class="stats-grid">
 
+
+                <!-- TOTAL FILES -->
 
                 <div class="stat-card">
 
@@ -169,16 +224,21 @@
 
                     <div>
 
-                        <p>Total Files</p>
+                        <span>
+                            Total Files
+                        </span>
 
-                        <h2 id="totalFiles">
-                            --
-                        </h2>
+                        <strong id="totalFiles">
+                            0
+                        </strong>
 
                     </div>
 
                 </div>
 
+
+
+                <!-- STORAGE -->
 
                 <div class="stat-card">
 
@@ -188,45 +248,229 @@
 
                     <div>
 
-                        <p>Storage Used</p>
+                        <span>
+                            Storage Used
+                        </span>
 
-                        <h2 id="storageUsed">
-                            --
-                        </h2>
+                        <strong id="storageUsed">
+                            0 MB
+                        </strong>
 
                     </div>
 
                 </div>
 
+
+
+                <!-- CLOUD -->
 
                 <div class="stat-card">
 
                     <div class="stat-icon green">
-                        ☁
+                        ☁️
                     </div>
 
                     <div>
 
-                        <p>Cloud Storage</p>
+                        <span>
+                            Cloud Storage
+                        </span>
+
+                        <strong>
+                            SimbaBase
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 STORAGE OVERVIEW
+                 ================================================= -->
+
+            <div class="storage-card">
+
+                <div class="storage-header">
+
+                    <div>
 
                         <h2>
-                            SimbaBase
+                            Storage Overview
                         </h2>
+
+                        <p>
+                            Monitor your cloud storage usage
+                        </p>
+
+                    </div>
+
+                    <span id="storagePercentage">
+                        0%
+                    </span>
+
+                </div>
+
+
+                <div class="storage-bar">
+
+                    <div
+                            id="storageProgress"
+                            class="storage-progress"
+                            style="width: 0%;">
 
                     </div>
 
                 </div>
 
 
+                <div class="storage-footer">
+
+                    <span id="storageDetails">
+                        0 MB used
+                    </span>
+
+                    <span>
+                        2 GB available
+                    </span>
+
+                </div>
+
             </div>
 
 
-            <!-- ================= FILE SECTION ================= -->
 
-            <div class="file-section" id="myFilesSection">
+            <!-- =================================================
+                 QUICK ACTIONS
+                 ================================================= -->
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Quick Actions
+                    </h2>
+
+                    <p>
+                        Manage your files quickly
+                    </p>
+
+                </div>
+
+            </div>
 
 
-                <div class="file-section-top">
+            <div class="quick-actions">
+
+
+                <!-- QUICK UPLOAD -->
+
+                <button
+                        type="button"
+                        class="quick-action upload-action"
+                        id="quickUploadBtn">
+
+                    <div>
+                        ⬆️
+                    </div>
+
+                    <span>
+                        Upload File
+                    </span>
+
+                    <small>
+                        Add a new file
+                    </small>
+
+                </button>
+
+
+
+                <!-- MY FILES -->
+
+                <button
+                        type="button"
+                        class="quick-action"
+                        onclick="document.getElementById('files').scrollIntoView()">
+
+                    <div>
+                        📁
+                    </div>
+
+                    <span>
+                        My Files
+                    </span>
+
+                    <small>
+                        Browse your files
+                    </small>
+
+                </button>
+
+
+
+                <!-- FAVORITES -->
+
+                <button
+                        type="button"
+                        class="quick-action"
+                        id="favorites">
+
+                    <div>
+                        ⭐
+                    </div>
+
+                    <span>
+                        Favorites
+                    </span>
+
+                    <small>
+                        Important files
+                    </small>
+
+                </button>
+
+
+
+                <!-- TRASH -->
+
+                <button
+                        type="button"
+                        class="quick-action"
+                        id="trash">
+
+                    <div>
+                        🗑️
+                    </div>
+
+                    <span>
+                        Trash
+                    </span>
+
+                    <small>
+                        Deleted files
+                    </small>
+
+                </button>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 FILE SECTION
+                 ================================================= -->
+
+            <section
+                    id="files"
+                    class="files-section">
+
+
+                <div class="files-header">
 
                     <div>
 
@@ -241,28 +485,47 @@
                     </div>
 
 
-                    <div class="file-tools">
+                    <div class="file-controls">
+
+
+                        <!-- SEARCH -->
 
                         <div class="search-box">
 
-                            <span>🔍</span>
+                            <span>
+                                🔍
+                            </span>
 
                             <input
                                     type="text"
                                     id="searchInput"
-                                    placeholder="Search files..."
-                            >
+                                    placeholder="Search files...">
 
                         </div>
 
 
-                        <select id="sortSelect" class="sort-select">
-                            <option value="newest">🕒 Newest</option>
-                            <option value="oldest">🕒 Oldest</option>
-                            <option value="nameAsc">🔤 Name A-Z</option>
-                            <option value="nameDesc">🔤 Name Z-A</option>
-                            <option value="largest">📦 Largest</option>
-                            <option value="smallest">📦 Smallest</option>
+                        <!-- SORT -->
+
+                        <select
+                                id="sortSelect"
+                                class="sort-select">
+
+                            <option value="newest">
+                                Newest
+                            </option>
+
+                            <option value="oldest">
+                                Oldest
+                            </option>
+
+                            <option value="name">
+                                Name
+                            </option>
+
+                            <option value="size">
+                                Size
+                            </option>
+
                         </select>
 
                     </div>
@@ -270,26 +533,162 @@
                 </div>
 
 
-                <!-- Upload message -->
 
-                <p id="uploadMessage"
-                   class="upload-message">
-                </p>
+                <!-- UPLOAD MESSAGE -->
+
+                <div
+                        id="uploadMessage"
+                        class="upload-message">
+
+                </div>
+
 
 
                 <!-- FILE LIST -->
 
-                <div id="fileList"
-                     class="file-list">
+                <div
+                        id="fileList"
+                        class="file-list">
 
-                    <div class="loading">
-                        Loading files...
+                    <div class="loading-container">
+
+                        <div class="loading-spinner"></div>
+
+                        <p>
+                            Loading files...
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 FILE TYPES
+                 ================================================= -->
+
+            <section class="file-types-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2>
+                            Your Files
+                        </h2>
+
+                        <p>
+                            Organize your cloud storage
+                        </p>
+
                     </div>
 
                 </div>
 
 
-            </div>
+                <div class="file-type-grid">
+
+
+                    <!-- DOCUMENTS -->
+
+                    <div class="file-type-card">
+
+                        <div class="file-type-icon">
+                            📄
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Documents
+                            </strong>
+
+                            <span id="documentCount">
+                                0 files
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- IMAGES -->
+
+                    <div class="file-type-card">
+
+                        <div class="file-type-icon">
+                            🖼️
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Images
+                            </strong>
+
+                            <span id="imageCount">
+                                0 files
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- VIDEOS -->
+
+                    <div class="file-type-card">
+
+                        <div class="file-type-icon">
+                            🎬
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Videos
+                            </strong>
+
+                            <span id="videoCount">
+                                0 files
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- OTHER -->
+
+                    <div class="file-type-card">
+
+                        <div class="file-type-icon">
+                            📦
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Other
+                            </strong>
+
+                            <span id="otherCount">
+                                0 files
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
 
 
         </section>
@@ -298,43 +697,73 @@
 
 </div>
 
-<div id="deleteModal" class="modal-overlay">
+
+
+<!-- =================================================
+     DELETE MODAL
+     ================================================= -->
+
+<div
+        id="deleteModal"
+        class="modal-overlay">
+
 
     <div class="delete-modal">
+
 
         <div class="delete-icon">
             🗑️
         </div>
 
-        <h2>Delete File?</h2>
+
+        <h2>
+            Delete File?
+        </h2>
+
 
         <p>
             Are you sure you want to delete this file?
+            This action cannot be undone.
         </p>
+
 
         <div class="modal-actions">
 
+
             <button
                     id="cancelDeleteBtn"
+                    type="button"
                     class="cancel-delete-btn">
+
                 Cancel
+
             </button>
+
 
             <button
                     id="confirmDeleteBtn"
+                    type="button"
                     class="confirm-delete-btn">
+
                 Delete
+
             </button>
 
+
         </div>
+
 
     </div>
 
 </div>
 
-<script src="../js/dashboard.js"></script>
 
 
+<!-- =================================================
+     JAVASCRIPT
+     ================================================= -->
+
+<script src="js/dashboard.js"></script>
 
 </body>
 

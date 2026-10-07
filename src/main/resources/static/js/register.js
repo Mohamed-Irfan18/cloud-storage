@@ -1,24 +1,48 @@
 const registerForm = document.getElementById("registerForm");
 
-const message = document.getElementById("message");
+const registerMessage =
+    document.getElementById("registerMessage");
+
 
 registerForm.addEventListener("submit", async function (event) {
 
     event.preventDefault();
 
     const username =
-        document.getElementById("username").value;
+        document.getElementById("username").value.trim();
 
     const email =
-        document.getElementById("email").value;
+        document.getElementById("email").value.trim();
 
     const password =
         document.getElementById("password").value;
 
+
+    // Basic validation
+
+    if (!username || !email || !password) {
+
+        registerMessage.textContent =
+            "Please fill in all fields.";
+
+        registerMessage.style.color = "#dc2626";
+
+        return;
+    }
+
+
+    // Show loading message
+
+    registerMessage.textContent =
+        "Creating your account...";
+
+    registerMessage.style.color = "#2563eb";
+
+
     try {
 
         const response = await fetch(
-            "http://localhost:8081/api/users/register",
+            "/api/users/register",
             {
                 method: "POST",
 
@@ -34,33 +58,70 @@ registerForm.addEventListener("submit", async function (event) {
             }
         );
 
-        const data = await response.text();
 
-        if (response.ok) {
+        const result =
+            await response.text();
 
-            message.textContent =
-                "Registration successful!";
 
-            registerForm.reset();
+        console.log(
+            "Registration status:",
+            response.status
+        );
 
-            setTimeout(function () {
-                window.location.href = "login.html";
-            }, 1000);
+        console.log(
+            "Registration response:",
+            result
+        );
 
-        } else {
 
-            message.textContent =
-                data || "Registration failed.";
+        if (!response.ok) {
 
+            registerMessage.textContent =
+                result || "Registration failed.";
+
+            registerMessage.style.color =
+                "#dc2626";
+
+            return;
         }
+
+
+        // Success
+
+        registerMessage.textContent =
+            "Account created successfully!";
+
+        registerMessage.style.color =
+            "#16a34a";
+
+
+        // Clear fields
+
+        registerForm.reset();
+
+
+        // Redirect to login
+
+        setTimeout(function () {
+
+            window.location.href =
+                "/login.html";
+
+        }, 1200);
+
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Registration error:",
+            error
+        );
 
-        message.textContent =
-            "Unable to connect to server.";
+        registerMessage.textContent =
+            "Unable to connect to the server.";
 
+        registerMessage.style.color =
+            "#dc2626";
     }
 
 });

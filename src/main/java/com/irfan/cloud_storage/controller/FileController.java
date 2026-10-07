@@ -36,32 +36,23 @@ public class FileController
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
     }
-
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(
             @RequestParam("file") MultipartFile file,
-            Authentication authentication)
-    {
+            Authentication authentication) {
 
-        try
-        {
-            // 1. Get logged-in username from JWT
+        try {
             String username = authentication.getName();
 
-            // 2. Find user in database
             User user = userRepository.findByUsername(username)
-                    .orElseThrow(() ->
-                            new RuntimeException("User not found"));
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
             String fileName = file.getOriginalFilename();
-
             String filePath = user.getId() + "/" + fileName;
 
             storageService.uploadFile(file, filePath);
 
-            // 5. Create file metadata
             FileMetadata metadata = new FileMetadata();
-
             metadata.setFileName(fileName);
             metadata.setS3Key(filePath);
             metadata.setContentType(file.getContentType());
@@ -69,15 +60,15 @@ public class FileController
             metadata.setUploadedAt(LocalDateTime.now());
             metadata.setUser(user);
 
-            // 6. Save metadata in SQL Server
             fileRepository.save(metadata);
 
             return ResponseEntity.ok(
-                    "File uploaded and metadata saved successfully: "
-                            + fileName
+                    "File uploaded and metadata saved successfully: " + fileName
             );
 
         } catch (Exception e) {
+
+            e.printStackTrace();   // ADD THIS
 
             return ResponseEntity.internalServerError()
                     .body("File upload failed: " + e.getMessage());

@@ -2,99 +2,232 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Cloud Storage - Register</title>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud Storage - Create Account</title>
 
     <link rel="stylesheet" href="css/style.css">
+
 </head>
 
-<body>
+<body class="auth-page">
 
-<div class="auth-container">
+<div class="auth-wrapper">
 
-    <div class="auth-card">
+    <!-- LEFT SIDE -->
 
-        <h1>☁ Cloud Storage</h1>
+    <div class="auth-hero">
 
-        <h2>Create Account</h2>
+        <div class="hero-content">
 
-        <p class="subtitle">
-            Create your cloud storage account
-        </p>
+            <div class="cloud-logo">
+                ☁
+            </div>
 
-        <form id="registerForm">
+            <h1>
+                Start Your<br>
+                <span>Cloud Journey.</span>
+            </h1>
 
-            <div class="form-group">
+            <p>
+                Create your account and securely
+                store, manage and access your files
+                from anywhere.
+            </p>
 
-                <label for="username">
-                    Username
-                </label>
+            <div class="feature-list">
 
-                <input
-                        type="text"
-                        id="username"
-                        placeholder="Enter username"
-                        required
-                >
+                <div class="feature">
+
+                    <span>🔐</span>
+
+                    <div>
+                        <strong>Private & Secure</strong>
+                        <small>
+                            Your files belong to you
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="feature">
+
+                    <span>⚡</span>
+
+                    <div>
+                        <strong>Easy Management</strong>
+                        <small>
+                            Upload and organize your files
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="feature">
+
+                    <span>☁️</span>
+
+                    <div>
+                        <strong>Access Anywhere</strong>
+                        <small>
+                            Your files are always available
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RIGHT SIDE -->
+
+    <div class="auth-panel">
+
+        <div class="login-card">
+
+            <div class="mobile-logo">
+                ☁
+            </div>
+
+            <h2>
+                Create Account
+            </h2>
+
+            <p class="login-subtitle">
+                Start storing your files securely
+            </p>
+
+
+            <form id="registerForm">
+
+                <!-- USERNAME -->
+
+                <div class="input-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span>👤</span>
+
+                        <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Choose a username"
+                                autocomplete="username"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="input-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span>📧</span>
+
+                        <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                autocomplete="email"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="input-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span>🔒</span>
+
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+                <!-- REGISTER BUTTON -->
+
+                <button
+                        type="submit"
+                        class="login-button">
+
+                    <span>Create Account</span>
+
+                    <span class="arrow">
+                        →
+                    </span>
+
+                </button>
+
+            </form>
+
+
+            <p
+                    id="registerMessage"
+                    class="login-message">
+            </p>
+
+
+            <!-- LOGIN -->
+
+            <div class="register-section">
+
+                <span>
+                    Already have an account?
+                </span>
+
+                <a href="login.html">
+                    Login
+                </a>
 
             </div>
 
 
-            <div class="form-group">
+            <div class="security-note">
 
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                        type="email"
-                        id="email"
-                        placeholder="Enter email"
-                        required
-                >
+                🔒 Your information is securely protected
 
             </div>
 
-
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <input
-                        type="password"
-                        id="password"
-                        placeholder="Enter password"
-                        required
-                >
-
-            </div>
-
-
-            <button
-                    type="submit"
-                    class="btn">
-                Register
-            </button>
-
-
-            <p id="message"></p>
-
-        </form>
-
-
-        <p class="switch-page">
-
-            Already have an account?
-
-            <a href="login.html">
-                Login
-            </a>
-
-        </p>
+        </div>
 
     </div>
 
@@ -103,8 +236,6 @@
 
 <script src="js/register.js"></script>
 
-<link rel="stylesheet" href="css/style.css">
-<script src="js/register.js"></script>
 </body>
 
 </html>

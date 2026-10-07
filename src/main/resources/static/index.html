@@ -1,19 +1,785 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Cloud Storage</title>
 
-    <meta http-equiv="refresh" content="0;url=login.html">
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+
+        /* =========================================
+           LANDING PAGE
+           ========================================= */
+
+        .landing-page {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            font-family:
+                    Inter,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    sans-serif;
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #0f172a 0%,
+                            #1e3a8a 50%,
+                            #2563eb 100%
+                    );
+
+            color: white;
+        }
+
+
+        /* =========================================
+           NAVBAR
+           ========================================= */
+
+        .landing-nav {
+
+            height: 80px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 7%;
+
+            box-sizing: border-box;
+
+            border-bottom:
+                    1px solid rgba(255,255,255,0.1);
+
+            background:
+                    rgba(15,23,42,0.15);
+
+            backdrop-filter: blur(10px);
+        }
+
+
+        .landing-logo {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font-size: 20px;
+
+            font-weight: 800;
+        }
+
+
+        .landing-logo-icon {
+
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+
+            background:
+                    rgba(255,255,255,0.15);
+
+            font-size: 22px;
+        }
+
+
+        .nav-buttons {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+
+        .nav-login {
+
+            padding:
+                    10px 20px;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            border-radius: 9px;
+
+            transition:
+                    0.2s ease;
+        }
+
+
+        .nav-login:hover {
+
+            background:
+                    rgba(255,255,255,0.1);
+        }
+
+
+        .nav-register {
+
+            padding:
+                    11px 20px;
+
+            color: #1d4ed8;
+
+            background: white;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            border-radius: 9px;
+
+            transition:
+                    0.2s ease;
+
+            box-shadow:
+                    0 8px 20px
+                    rgba(0,0,0,0.15);
+        }
+
+
+        .nav-register:hover {
+
+            transform:
+                    translateY(-2px);
+
+            box-shadow:
+                    0 12px 25px
+                    rgba(0,0,0,0.2);
+        }
+
+
+        /* =========================================
+           HERO
+           ========================================= */
+
+        .landing-hero {
+
+            min-height:
+                    calc(100vh - 80px);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+            padding:
+                    60px 7%;
+
+            box-sizing: border-box;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        /* Decorative circles */
+
+        .landing-hero::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 500px;
+            height: 500px;
+
+            border-radius: 50%;
+
+            background:
+                    rgba(255,255,255,0.05);
+
+            top: -220px;
+
+            left: -150px;
+        }
+
+
+        .landing-hero::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 400px;
+            height: 400px;
+
+            border-radius: 50%;
+
+            background:
+                    rgba(147,197,253,0.08);
+
+            bottom: -200px;
+
+            right: -120px;
+        }
+
+
+        .hero-content {
+
+            max-width: 850px;
+
+            position: relative;
+
+            z-index: 2;
+        }
+
+
+        .hero-icon {
+
+            width: 90px;
+            height: 90px;
+
+            margin:
+                    0 auto 30px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 26px;
+
+            font-size: 48px;
+
+            background:
+                    rgba(255,255,255,0.12);
+
+            border:
+                    1px solid
+                    rgba(255,255,255,0.2);
+
+            box-shadow:
+                    0 20px 50px
+                    rgba(0,0,0,0.2);
+
+            backdrop-filter:
+                    blur(10px);
+        }
+
+
+        .hero-content h1 {
+
+            margin: 0;
+
+            font-size: 64px;
+
+            line-height: 1.05;
+
+            letter-spacing: -2.5px;
+        }
+
+
+        .hero-content h1 span {
+
+            color: #93c5fd;
+        }
+
+
+        .hero-description {
+
+            max-width: 650px;
+
+            margin:
+                    25px auto 0;
+
+            font-size: 18px;
+
+            line-height: 1.7;
+
+            color: #dbeafe;
+        }
+
+
+        /* =========================================
+           HERO BUTTONS
+           ========================================= */
+
+        .hero-buttons {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 14px;
+
+            margin-top: 35px;
+        }
+
+
+        .primary-button {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 9px;
+
+            padding:
+                    14px 27px;
+
+            border-radius: 11px;
+
+            background: white;
+
+            color: #1d4ed8;
+
+            text-decoration: none;
+
+            font-weight: 700;
+
+            font-size: 14px;
+
+            box-shadow:
+                    0 12px 30px
+                    rgba(0,0,0,0.2);
+
+            transition:
+                    0.2s ease;
+        }
+
+
+        .primary-button:hover {
+
+            transform:
+                    translateY(-3px);
+
+            box-shadow:
+                    0 17px 35px
+                    rgba(0,0,0,0.25);
+        }
+
+
+        .secondary-button {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 9px;
+
+            padding:
+                    14px 27px;
+
+            border-radius: 11px;
+
+            background:
+                    rgba(255,255,255,0.1);
+
+            border:
+                    1px solid
+                    rgba(255,255,255,0.25);
+
+            color: white;
+
+            text-decoration: none;
+
+            font-weight: 600;
+
+            font-size: 14px;
+
+            transition:
+                    0.2s ease;
+        }
+
+
+        .secondary-button:hover {
+
+            background:
+                    rgba(255,255,255,0.18);
+
+            transform:
+                    translateY(-3px);
+        }
+
+
+        /* =========================================
+           FEATURES
+           ========================================= */
+
+        .landing-features {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 18px;
+
+            margin-top: 55px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .landing-feature {
+
+            width: 190px;
+
+            padding:
+                    18px;
+
+            box-sizing: border-box;
+
+            border-radius: 15px;
+
+            background:
+                    rgba(255,255,255,0.08);
+
+            border:
+                    1px solid
+                    rgba(255,255,255,0.12);
+
+            backdrop-filter:
+                    blur(8px);
+        }
+
+
+        .landing-feature-icon {
+
+            font-size: 24px;
+
+            margin-bottom: 9px;
+        }
+
+
+        .landing-feature strong {
+
+            display: block;
+
+            font-size: 13px;
+
+            margin-bottom: 5px;
+        }
+
+
+        .landing-feature small {
+
+            color: #bfdbfe;
+
+            font-size: 11px;
+
+            line-height: 1.4;
+        }
+
+
+        /* =========================================
+           MOBILE
+           ========================================= */
+
+        @media (max-width: 700px) {
+
+            .landing-nav {
+
+                padding:
+                        0 20px;
+            }
+
+
+            .landing-logo {
+
+                font-size: 17px;
+            }
+
+
+            .nav-login {
+
+                display: none;
+            }
+
+
+            .nav-register {
+
+                padding:
+                        9px 14px;
+            }
+
+
+            .landing-hero {
+
+                padding:
+                        50px 20px;
+            }
+
+
+            .hero-content h1 {
+
+                font-size: 42px;
+
+                letter-spacing:
+                        -1.5px;
+            }
+
+
+            .hero-description {
+
+                font-size: 15px;
+            }
+
+
+            .hero-buttons {
+
+                flex-direction: column;
+
+                align-items: center;
+            }
+
+
+            .primary-button,
+            .secondary-button {
+
+                width: 220px;
+            }
+
+
+            .landing-features {
+
+                gap: 10px;
+
+                margin-top: 40px;
+            }
+
+
+            .landing-feature {
+
+                width: 145px;
+
+                padding: 14px;
+            }
+        }
+
+    </style>
+
 </head>
 
-<body>
 
-<p>
-    Redirecting to login...
-</p>
+<body class="landing-page">
+
+
+<!-- =========================================
+     NAVIGATION
+     ========================================= -->
+
+<nav class="landing-nav">
+
+    <div class="landing-logo">
+
+        <div class="landing-logo-icon">
+            ☁
+        </div>
+
+        <span>
+            Cloud Storage
+        </span>
+
+    </div>
+
+
+    <div class="nav-buttons">
+
+        <a
+                href="login.html"
+                class="nav-login">
+
+            Login
+
+        </a>
+
+
+        <a
+                href="register.html"
+                class="nav-register">
+
+            Get Started
+
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =========================================
+     HERO SECTION
+     ========================================= -->
+
+<main class="landing-hero">
+
+    <div class="hero-content">
+
+
+        <div class="hero-icon">
+
+            ☁
+
+        </div>
+
+
+        <h1>
+
+            Your Files.
+            <br>
+
+            <span>Your Cloud.</span>
+
+        </h1>
+
+
+        <p class="hero-description">
+
+            A simple and secure cloud storage
+            platform to upload, manage, organize
+            and access your files from anywhere.
+
+        </p>
+
+
+        <!-- BUTTONS -->
+
+        <div class="hero-buttons">
+
+            <a
+                    href="register.html"
+                    class="primary-button">
+
+                Get Started
+
+                <span>→</span>
+
+            </a>
+
+
+            <a
+                    href="login.html"
+                    class="secondary-button">
+
+                Sign In
+
+            </a>
+
+        </div>
+
+
+        <!-- FEATURES -->
+
+        <div class="landing-features">
+
+
+            <div class="landing-feature">
+
+                <div class="landing-feature-icon">
+                    🔐
+                </div>
+
+                <strong>
+                    Secure
+                </strong>
+
+                <small>
+                    JWT authentication
+                    keeps your account protected.
+                </small>
+
+            </div>
+
+
+            <div class="landing-feature">
+
+                <div class="landing-feature-icon">
+                    ☁️
+                </div>
+
+                <strong>
+                    Cloud Storage
+                </strong>
+
+                <small>
+                    Store your files securely
+                    in the cloud.
+                </small>
+
+            </div>
+
+
+            <div class="landing-feature">
+
+                <div class="landing-feature-icon">
+                    ⚡
+                </div>
+
+                <strong>
+                    Fast Access
+                </strong>
+
+                <small>
+                    Upload, download and
+                    manage files easily.
+                </small>
+
+            </div>
+
+
+            <div class="landing-feature">
+
+                <div class="landing-feature-icon">
+                    📁
+                </div>
+
+                <strong>
+                    File Management
+                </strong>
+
+                <small>
+                    Rename and delete your
+                    files whenever needed.
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
 
 </body>
+
 </html>

@@ -1,6 +1,13 @@
-// ======================================================
+// =====================================================
+// CONFIGURATION
+// =====================================================
+
+const API_BASE_URL = "/api";
+
+
+// =====================================================
 // AUTHENTICATION
-// ======================================================
+// =====================================================
 
 const token = localStorage.getItem("token");
 
@@ -9,95 +16,93 @@ if (!token) {
 }
 
 
-// ======================================================
+// =====================================================
 // DOM ELEMENTS
-// ======================================================
+// =====================================================
 
-const fileList =
-    document.getElementById("fileList");
+const fileList = document.getElementById("fileList");
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
+const uploadMessage = document.getElementById("uploadMessage");
+const logoutBtn = document.getElementById("logoutBtn");
+const searchInput = document.getElementById("searchInput");
 
-const uploadBtn =
-    document.getElementById("uploadBtn");
+const totalFilesElement =
+    document.getElementById("totalFiles");
 
-const fileInput =
-    document.getElementById("fileInput");
+const storageUsedElement =
+    document.getElementById("storageUsed");
 
-const uploadMessage =
-    document.getElementById("uploadMessage");
 
-const logoutBtn =
-    document.getElementById("logoutBtn");
+// =====================================================
+// INITIALIZE DASHBOARD
+// =====================================================
 
-const searchInput =
-    document.getElementById("searchInput");
+document.addEventListener("DOMContentLoaded", function () {
 
-const sortSelect =
-    document.getElementById("sortSelect");
+    console.log("Dashboard initialized");
 
-const deleteModal =
-    document.getElementById("deleteModal");
+    loadFiles();
 
-const cancelDeleteBtn =
-    document.getElementById("cancelDeleteBtn");
+    setupUpload();
 
-const confirmDeleteBtn =
-    document.getElementById("confirmDeleteBtn");
+    setupSearch();
 
-// ======================================================
-// FILE DATA
-// ======================================================
+    setupNavigation();
 
-// Store all files returned by backend
-let allFiles = [];
+    setupLogout();
+
+});
+
+
+// =====================================================
+// LOAD FILES
+// =====================================================
 
 async function loadFiles() {
 
+    if (!fileList) {
+        console.error("fileList not found!");
+        return;
+    }
+
+    fileList.innerHTML = `
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Loading files...</p>
+        </div>
+    `;
+
     try {
 
-        fileList.innerHTML =
-            `<div class="loading">Loading files...</div>`;
+        console.log(
+            "Calling:",
+            `${API_BASE_URL}/files`
+        );
 
-        console.log("Loading files...");
+        const response = await fetch(
+            `${API_BASE_URL}/files`,
+            {
+                method: "GET",
 
-        const controller =
-            new AbortController();
-
-        const timeout =
-            setTimeout(function () {
-                controller.abort();
-            }, 10000);
-
-
-        const response =
-            await fetch(
-                "http://localhost:8081/api/files",
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            "Bearer " + token
-                    },
-
-                    signal: controller.signal
+                headers: {
+                    "Authorization": "Bearer " + token
                 }
-            );
-
-
-        clearTimeout(timeout);
+            }
+        );
 
         console.log(
-            "GET /api/files status:",
+            "Response:",
             response.status
         );
 
 
+        // JWT expired / invalid
         if (response.status === 401) {
 
             localStorage.removeItem("token");
 
-            window.location.href =
-                "login.html";
+            window.location.href = "login.html";
 
             return;
         }
@@ -105,9 +110,14 @@ async function loadFiles() {
 
         if (!response.ok) {
 
+            const errorText =
+                await response.text();
+
             throw new Error(
-                "Failed to load files. Status: "
-                + response.status
+                "Server returned " +
+                response.status +
+                ": " +
+                errorText
             );
         }
 
@@ -121,12 +131,7 @@ async function loadFiles() {
         );
 
 
-        // Store files for search and sort
-        allFiles = files;
-
-
-        // Display files
-        updateFileList();
+        displayFiles(files);
 
 
     } catch (error) {
@@ -136,92 +141,128 @@ async function loadFiles() {
             error
         );
 
+        fileList.innerHTML = `
+            <div class="empty-state">
 
-        if (error.name === "AbortError") {
+                <div class="empty-icon">
+                    ⚠️
+                </div>
 
-            fileList.innerHTML =
-                "<p>Server took too long to respond.</p>";
+                <h3>
+                    Unable to load files
+                </h3>
 
-        } else {
+                <p>
+                    Please check whether the server is running.
+                </p>
 
-            fileList.innerHTML =
-                "<p>Unable to load files.</p>";
-        }
+                <button onclick="loadFiles()">
+                    Retry
+                </button>
 
+            </div>
+        `;
     }
 }
 
-// ======================================================
-// UPDATE STATISTICS
-// ======================================================
 
-function updateStatistics(files) {
-
-    const totalFiles =
-        document.getElementById(
-            "totalFiles"
-        );
-
-    const storageUsed =
-        document.getElementById(
-            "storageUsed"
-        );
-
-
-    // Total number of files
-    totalFiles.textContent =
-        files.length;
-
-
-    // Calculate total storage
-    const totalBytes =
-        files.reduce(
-            function (total, file) {
-
-                return total +
-                    (file.fileSize || 0);
-
-            },
-            0
-        );
-
-
-    storageUsed.textContent =
-        formatFileSize(totalBytes);
-}
-
-
-// ======================================================
+// =====================================================
 // DISPLAY FILES
-// ======================================================
+// =====================================================
 
 function displayFiles(files) {
+
+    if (!fileList) {
+        return;
+    }
 
     fileList.innerHTML = "";
 
 
-    // ------------------------------------------
+    // =================================================
+    // TOTAL FILES
+    // =================================================
+
+    if (totalFilesElement) {
+
+        totalFilesElement.textContent =
+            files.length;
+    }
+
+
+    // =================================================
+    // STORAGE USED
+    // =================================================
+
+    const totalBytes = files.reduce(
+        function (total, file) {
+
+            return total +
+                (file.fileSize || 0);
+
+        },
+        0
+    );
+
+
+    if (storageUsedElement) {
+
+        storageUsedElement.textContent =
+            formatFileSize(totalBytes);
+    }
+
+
+    // =================================================
+    // FILE TYPE COUNTS
+    // =================================================
+
+    updateFileTypeCounts(files);
+
+
+    // =================================================
     // NO FILES
-    // ------------------------------------------
+    // =================================================
 
     if (files.length === 0) {
 
-        fileList.innerHTML =
-            "<p>No files found.</p>";
+        fileList.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    📂
+                </div>
+
+                <h3>
+                    No files yet
+                </h3>
+
+                <p>
+                    Upload your first file to get started.
+                </p>
+
+                <button
+                    type="button"
+                    onclick="document.getElementById('fileInput').click()">
+
+                    Upload File
+
+                </button>
+
+            </div>
+        `;
 
         return;
     }
 
 
-    // ------------------------------------------
-    // DISPLAY EVERY FILE
-    // ------------------------------------------
+    // =================================================
+    // DISPLAY FILES
+    // =================================================
 
     files.forEach(function (file) {
 
         const fileCard =
             document.createElement("div");
-
 
         fileCard.className =
             "file-card";
@@ -232,13 +273,13 @@ function displayFiles(files) {
             <div class="file-info">
 
                 <div class="file-icon">
-                    📄
+                    ${getFileIcon(file.fileName)}
                 </div>
 
                 <div>
 
                     <h3>
-                        ${file.fileName}
+                        ${escapeHtml(file.fileName)}
                     </h3>
 
                     <p>
@@ -288,29 +329,157 @@ function displayFiles(files) {
         `;
 
 
-        fileList.appendChild(
-            fileCard
-        );
+        fileList.appendChild(fileCard);
 
     });
 }
 
 
-// ======================================================
-// ESCAPE FILE NAME
-// ======================================================
+// =====================================================
+// FILE TYPE COUNTS
+// =====================================================
 
-function escapeFileName(fileName) {
+function updateFileTypeCounts(files) {
 
-    return fileName
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'");
+    let documents = 0;
+    let images = 0;
+    let videos = 0;
+    let other = 0;
+
+
+    files.forEach(function (file) {
+
+        const name =
+            (file.fileName || "")
+                .toLowerCase();
+
+
+        if (
+            name.endsWith(".pdf") ||
+            name.endsWith(".doc") ||
+            name.endsWith(".docx") ||
+            name.endsWith(".txt") ||
+            name.endsWith(".xls") ||
+            name.endsWith(".xlsx") ||
+            name.endsWith(".ppt") ||
+            name.endsWith(".pptx") ||
+            name.endsWith(".sql")
+        ) {
+
+            documents++;
+
+        } else if (
+            name.endsWith(".jpg") ||
+            name.endsWith(".jpeg") ||
+            name.endsWith(".png") ||
+            name.endsWith(".gif") ||
+            name.endsWith(".webp")
+        ) {
+
+            images++;
+
+        } else if (
+            name.endsWith(".mp4") ||
+            name.endsWith(".avi") ||
+            name.endsWith(".mkv") ||
+            name.endsWith(".mov")
+        ) {
+
+            videos++;
+
+        } else {
+
+            other++;
+        }
+
+    });
+
+
+    const documentCount =
+        document.getElementById("documentCount");
+
+    const imageCount =
+        document.getElementById("imageCount");
+
+    const videoCount =
+        document.getElementById("videoCount");
+
+    const otherCount =
+        document.getElementById("otherCount");
+
+
+    if (documentCount) {
+        documentCount.textContent =
+            documents + " files";
+    }
+
+    if (imageCount) {
+        imageCount.textContent =
+            images + " files";
+    }
+
+    if (videoCount) {
+        videoCount.textContent =
+            videos + " files";
+    }
+
+    if (otherCount) {
+        otherCount.textContent =
+            other + " files";
+    }
 }
 
 
-// ======================================================
-// FORMAT FILE SIZE
-// ======================================================
+// =====================================================
+// FILE ICON
+// =====================================================
+
+function getFileIcon(fileName) {
+
+    const name =
+        (fileName || "").toLowerCase();
+
+
+    if (
+        name.endsWith(".jpg") ||
+        name.endsWith(".jpeg") ||
+        name.endsWith(".png") ||
+        name.endsWith(".gif") ||
+        name.endsWith(".webp")
+    ) {
+
+        return "🖼️";
+    }
+
+
+    if (
+        name.endsWith(".mp4") ||
+        name.endsWith(".avi") ||
+        name.endsWith(".mkv") ||
+        name.endsWith(".mov")
+    ) {
+
+        return "🎬";
+    }
+
+
+    if (
+        name.endsWith(".zip") ||
+        name.endsWith(".rar") ||
+        name.endsWith(".7z")
+    ) {
+
+        return "📦";
+    }
+
+
+    return "📄";
+}
+
+
+// =====================================================
+// FILE SIZE
+// =====================================================
 
 function formatFileSize(bytes) {
 
@@ -350,9 +519,9 @@ function formatFileSize(bytes) {
 }
 
 
-// ======================================================
-// FORMAT DATE
-// ======================================================
+// =====================================================
+// DATE
+// =====================================================
 
 function formatDate(dateString) {
 
@@ -360,116 +529,231 @@ function formatDate(dateString) {
         return "";
     }
 
-
-    const date =
-        new Date(dateString);
-
-
-    return date.toLocaleDateString();
+    return new Date(dateString)
+        .toLocaleDateString();
 }
 
 
-// ======================================================
+// =====================================================
 // UPLOAD
-// ======================================================
+// =====================================================
 
-uploadBtn.addEventListener(
-    "click",
-    function () {
+function setupUpload() {
 
-        fileInput.click();
+    const uploadBtn =
+        document.getElementById("uploadBtn");
 
-    }
-);
+    const quickUploadBtn =
+        document.getElementById("quickUploadBtn");
 
+    const fileInput =
+        document.getElementById("fileInput");
 
-fileInput.addEventListener(
-    "change",
-    async function () {
-
-        const file =
-            fileInput.files[0];
+    const uploadMessage =
+        document.getElementById("uploadMessage");
 
 
-        if (!file) {
-            return;
-        }
+    if (!fileInput) {
 
-
-        const formData =
-            new FormData();
-
-
-        formData.append(
-            "file",
-            file
+        console.error(
+            "fileInput not found!"
         );
 
+        return;
+    }
 
-        uploadMessage.textContent =
-            "Uploading...";
+
+    // =================================================
+    // PREVENT DUPLICATE EVENT LISTENERS
+    // =================================================
+
+    if (
+        fileInput.dataset.uploadSetup === "true"
+    ) {
+
+        console.log(
+            "Upload already initialized"
+        );
+
+        return;
+    }
 
 
-        try {
+    fileInput.dataset.uploadSetup = "true";
 
-            const response =
-                await fetch(
-                    "http://localhost:8081/api/files/upload",
-                    {
-                        method: "POST",
 
-                        headers: {
-                            "Authorization":
-                                "Bearer " + token
-                        },
+    // =================================================
+    // TOP UPLOAD BUTTON
+    // =================================================
 
-                        body: formData
-                    }
+    if (uploadBtn) {
+
+        uploadBtn.addEventListener(
+            "click",
+            function () {
+
+                console.log(
+                    "Upload button clicked"
                 );
 
+                fileInput.click();
 
-            const result =
-                await response.text();
+            }
+        );
+
+    }
 
 
-            if (!response.ok) {
+    // =================================================
+    // QUICK UPLOAD BUTTON
+    // =================================================
 
-                uploadMessage.textContent =
-                    "Upload failed: " + result;
+    if (quickUploadBtn) {
 
+        quickUploadBtn.addEventListener(
+            "click",
+            function () {
+
+                console.log(
+                    "Quick upload clicked"
+                );
+
+                fileInput.click();
+
+            }
+        );
+
+    }
+
+
+    // =================================================
+    // FILE SELECTED
+    // =================================================
+
+    fileInput.addEventListener(
+        "change",
+        async function () {
+
+            const file =
+                fileInput.files[0];
+
+
+            if (!file) {
                 return;
             }
 
 
-            uploadMessage.textContent =
-                "File uploaded successfully!";
-
-
-            fileInput.value = "";
-
-
-            // Reload files
-            loadFiles();
-
-
-        } catch (error) {
-
-            console.error(
-                "UPLOAD ERROR:",
-                error
+            console.log(
+                "Selected file:",
+                file.name
             );
 
-            uploadMessage.textContent =
-                "Upload failed.";
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "file",
+                file
+            );
+
+
+            if (uploadMessage) {
+
+                uploadMessage.textContent =
+                    "Uploading " +
+                    file.name +
+                    "...";
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/files/upload`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization":
+                                    "Bearer " + token
+                            },
+
+                            body: formData
+                        }
+                    );
+
+
+                console.log(
+                    "Upload status:",
+                    response.status
+                );
+
+
+                const result =
+                    await response.text();
+
+
+                console.log(
+                    "Upload response:",
+                    result
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result ||
+                        "Upload failed"
+                    );
+                }
+
+
+                if (uploadMessage) {
+
+                    uploadMessage.textContent =
+                        "✓ File uploaded successfully!";
+
+                }
+
+
+                // Clear selected file
+                fileInput.value = "";
+
+
+                // Refresh files
+                await loadFiles();
+
+
+            } catch (error) {
+
+                console.error(
+                    "UPLOAD ERROR:",
+                    error
+                );
+
+
+                if (uploadMessage) {
+
+                    uploadMessage.textContent =
+                        "❌ Upload failed: " +
+                        error.message;
+
+                }
+
+            }
+
         }
+    );
+}
 
-    }
-);
 
-
-// ======================================================
+// =====================================================
 // DOWNLOAD
-// ======================================================
+// =====================================================
 
 async function downloadFile(
     id,
@@ -480,7 +764,7 @@ async function downloadFile(
 
         const response =
             await fetch(
-                `http://localhost:8081/api/files/${id}/download`,
+                `${API_BASE_URL}/files/${id}/download`,
                 {
                     method: "GET",
 
@@ -490,6 +774,17 @@ async function downloadFile(
                     }
                 }
             );
+
+
+        if (response.status === 401) {
+
+            localStorage.removeItem("token");
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
 
 
         if (!response.ok) {
@@ -502,44 +797,32 @@ async function downloadFile(
         }
 
 
-        // Convert response to file
         const blob =
             await response.blob();
 
 
-        // Create temporary URL
         const url =
-            window.URL.createObjectURL(
-                blob
-            );
+            window.URL.createObjectURL(blob);
 
 
-        // Create download link
         const a =
             document.createElement("a");
 
 
         a.href = url;
 
-
-        // Keep original filename
         a.download =
             fileName || "download";
 
 
         document.body.appendChild(a);
 
-
         a.click();
-
 
         a.remove();
 
 
-        // Remove temporary URL
-        window.URL.revokeObjectURL(
-            url
-        );
+        window.URL.revokeObjectURL(url);
 
 
     } catch (error) {
@@ -556,9 +839,9 @@ async function downloadFile(
 }
 
 
-// ======================================================
+// =====================================================
 // RENAME
-// ======================================================
+// =====================================================
 
 async function renameFile(id) {
 
@@ -577,12 +860,11 @@ async function renameFile(id) {
 
         const response =
             await fetch(
-                `http://localhost:8081/api/files/${id}/rename`,
+                `${API_BASE_URL}/files/${id}/rename`,
                 {
                     method: "PUT",
 
                     headers: {
-
                         "Authorization":
                             "Bearer " + token,
 
@@ -602,42 +884,20 @@ async function renameFile(id) {
             await response.text();
 
 
-        // ------------------------------------------
-        // RENAME ERROR
-        // ------------------------------------------
-
         if (!response.ok) {
 
-            if (
-                response.status === 400 &&
-                result.includes(
-                    "KeyAlreadyExists"
-                )
-            ) {
-
-                uploadMessage.textContent =
-                    "A file with this name already exists.";
-
-            } else {
-
-                uploadMessage.textContent =
-                    "Rename failed: " +
-                    result;
-            }
+            alert(result);
 
             return;
         }
 
 
-        // ------------------------------------------
-        // SUCCESS
-        // ------------------------------------------
-
-        uploadMessage.textContent =
-            "File renamed successfully!";
+        alert(
+            "File renamed successfully!"
+        );
 
 
-        loadFiles();
+        await loadFiles();
 
 
     } catch (error) {
@@ -647,31 +907,35 @@ async function renameFile(id) {
             error
         );
 
-        uploadMessage.textContent =
-            "Rename failed.";
+        alert(
+            "Rename failed."
+        );
     }
 }
 
-// ======================================================
+
+// =====================================================
 // DELETE
-// ======================================================
+// =====================================================
 
 async function deleteFile(id) {
 
-    console.log("DELETE CLICKED:", id);
-
     const confirmed =
-        await showDeleteModal();
+        confirm(
+            "Are you sure you want to delete this file?"
+        );
+
 
     if (!confirmed) {
         return;
     }
 
+
     try {
 
         const response =
             await fetch(
-                `http://localhost:8081/api/files/${id}`,
+                `${API_BASE_URL}/files/${id}`,
                 {
                     method: "DELETE",
 
@@ -682,10 +946,10 @@ async function deleteFile(id) {
                 }
             );
 
+
         const result =
             await response.text();
 
-        console.log("DELETE RESPONSE:", result);
 
         if (!response.ok) {
 
@@ -694,10 +958,14 @@ async function deleteFile(id) {
             return;
         }
 
-        uploadMessage.textContent =
-            "File deleted successfully!";
 
-        loadFiles();
+        alert(
+            "File deleted successfully!"
+        );
+
+
+        await loadFiles();
+
 
     } catch (error) {
 
@@ -706,337 +974,320 @@ async function deleteFile(id) {
             error
         );
 
-        alert("Delete failed.");
+        alert(
+            "Delete failed."
+        );
     }
 }
 
 
-// ======================================================
-// DELETE MODAL
-// ======================================================
+// =====================================================
+// SEARCH
+// =====================================================
 
-function showDeleteModal() {
+function setupSearch() {
 
-    return new Promise(function (resolve) {
-
-        deleteModal.classList.add("show");
-
-
-        cancelDeleteBtn.onclick = function () {
-
-            deleteModal.classList.remove("show");
-
-            resolve(false);
-        };
-
-
-        confirmDeleteBtn.onclick = function () {
-
-            deleteModal.classList.remove("show");
-
-            resolve(true);
-        };
-
-    });
-}
-function updateFileList()
-{
-
-    const searchText =
-        searchInput.value
-            .toLowerCase()
-            .trim();
-
-
-    const sortType =
-        sortSelect.value;
-
-
-    // ------------------------------------------
-    // SEARCH
-    // ------------------------------------------
-
-    let filteredFiles =
-        allFiles.filter(function (file) {
-
-            return file.fileName
-                .toLowerCase()
-                .includes(searchText);
-
-        });
-
-
-    // ------------------------------------------
-    // SORT
-    // ------------------------------------------
-
-    if (sortType === "newest") {
-
-        filteredFiles.sort(
-            function (a, b) {
-
-                return new Date(b.uploadedAt)
-                    - new Date(a.uploadedAt);
-
-            }
-        );
-
+    if (!searchInput) {
+        return;
     }
 
 
-    else if (sortType === "oldest") {
+    searchInput.addEventListener(
+        "input",
+        function () {
 
-        filteredFiles.sort(
-            function (a, b) {
-
-                return new Date(a.uploadedAt)
-                    - new Date(b.uploadedAt);
-
-            }
-        );
-
-    }
+            const searchText =
+                searchInput.value
+                    .toLowerCase()
+                    .trim();
 
 
-    else if (sortType === "nameAsc") {
-
-        filteredFiles.sort(
-            function (a, b) {
-
-                return a.fileName
-                    .localeCompare(
-                        b.fileName
-                    );
-
-            }
-        );
-
-    }
-
-
-    else if (sortType === "nameDesc") {
-
-        filteredFiles.sort(
-            function (a, b) {
-
-                return b.fileName
-                    .localeCompare(
-                        a.fileName
-                    );
-
-            }
-        );
-
-    }
-
-
-    else if (sortType === "largest") {
-
-        filteredFiles.sort(
-            function (a, b) {
-
-                return (
-                    (b.fileSize || 0)
-                    -
-                    (a.fileSize || 0)
+            const fileCards =
+                document.querySelectorAll(
+                    ".file-card"
                 );
 
-            }
-        );
 
-    }
+            fileCards.forEach(
+                function (card) {
 
-
-    else if (sortType === "smallest") {
-
-        filteredFiles.sort(
-            function (a, b) {
-
-                return (
-                    (a.fileSize || 0)
-                    -
-                    (b.fileSize || 0)
-                );
-
-            }
-        );
-
-    }
+                    const heading =
+                        card.querySelector("h3");
 
 
-    // ------------------------------------------
-    // DISPLAY RESULT
-    // ------------------------------------------
+                    if (!heading) {
+                        return;
+                    }
 
-    displayFiles(filteredFiles);
+
+                    const fileName =
+                        heading.textContent
+                            .toLowerCase();
+
+
+                    card.style.display =
+                        fileName.includes(searchText)
+                            ? "flex"
+                            : "none";
+
+                }
+            );
+
+        }
+    );
 }
 
 
-// Search when typing
-searchInput.addEventListener(
-    "input",
-    function () {
+// =====================================================
+// SORT
+// =====================================================
 
-        updateFileList();
+function setupSort() {
 
+    const sortSelect =
+        document.getElementById("sortSelect");
+
+
+    if (!sortSelect) {
+        return;
     }
-);
 
 
-// Sort when dropdown changes
-sortSelect.addEventListener(
-    "change",
-    function () {
+    sortSelect.addEventListener(
+        "change",
+        async function () {
 
-        updateFileList();
+            try {
 
-    }
-);
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/files`,
+                        {
+                            headers: {
+                                "Authorization":
+                                    "Bearer " + token
+                            }
+                        }
+                    );
 
 
-// ======================================================
+                if (!response.ok) {
+                    return;
+                }
+
+
+                let files =
+                    await response.json();
+
+
+                const sortValue =
+                    sortSelect.value;
+
+
+                if (sortValue === "newest") {
+
+                    files.sort(
+                        (a, b) =>
+                            new Date(b.uploadedAt) -
+                            new Date(a.uploadedAt)
+                    );
+
+                } else if (sortValue === "oldest") {
+
+                    files.sort(
+                        (a, b) =>
+                            new Date(a.uploadedAt) -
+                            new Date(b.uploadedAt)
+                    );
+
+                } else if (sortValue === "name") {
+
+                    files.sort(
+                        (a, b) =>
+                            a.fileName
+                                .localeCompare(
+                                    b.fileName
+                                )
+                    );
+
+                } else if (sortValue === "size") {
+
+                    files.sort(
+                        (a, b) =>
+                            (b.fileSize || 0) -
+                            (a.fileSize || 0)
+                    );
+                }
+
+
+                displayFiles(files);
+
+
+            } catch (error) {
+
+                console.error(
+                    "SORT ERROR:",
+                    error
+                );
+            }
+
+        }
+    );
+}
+
+
+// =====================================================
 // SIDEBAR NAVIGATION
-// ======================================================
+// =====================================================
 
-const dashboardNav =
-    document.getElementById(
-        "dashboardNav"
-    );
+function setupNavigation() {
 
-
-const myFilesNav =
-    document.getElementById(
-        "myFilesNav"
-    );
-
-
-const favoritesNav =
-    document.getElementById(
-        "favoritesNav"
-    );
-
-
-const trashNav =
-    document.getElementById(
-        "trashNav"
-    );
-
-
-const dashboardSection =
-    document.getElementById(
-        "dashboardSection"
-    );
-
-
-const myFilesSection =
-    document.getElementById(
-        "myFilesSection"
-    );
-
-
-// ======================================================
-// DASHBOARD NAVIGATION
-// ======================================================
-
-dashboardNav.addEventListener(
-    "click",
-    function (event) {
-
-        event.preventDefault();
-
-
-        dashboardSection.scrollIntoView({
-            behavior: "smooth"
-        });
-
-
-        setActiveNav(
-            dashboardNav
+    const dashboardNav =
+        document.getElementById(
+            "dashboardNav"
         );
 
+    const myFilesNav =
+        document.getElementById(
+            "myFilesNav"
+        );
+
+    const favoritesNav =
+        document.getElementById(
+            "favoritesNav"
+        );
+
+    const trashNav =
+        document.getElementById(
+            "trashNav"
+        );
+
+
+    const dashboardSection =
+        document.getElementById(
+            "dashboardSection"
+        );
+
+    const myFilesSection =
+        document.getElementById(
+            "myFilesSection"
+        );
+
+
+    // Dashboard
+    if (dashboardNav) {
+
+        dashboardNav.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+
+                if (dashboardSection) {
+
+                    dashboardSection.scrollIntoView({
+                        behavior: "smooth"
+                    });
+                }
+
+
+                setActiveNav(
+                    dashboardNav
+                );
+
+            }
+        );
     }
-);
 
 
-// ======================================================
-// MY FILES NAVIGATION
-// ======================================================
+    // My Files
+    if (myFilesNav) {
 
-myFilesNav.addEventListener(
-    "click",
-    function (event) {
+        myFilesNav.addEventListener(
+            "click",
+            function (event) {
 
-        event.preventDefault();
-
-
-        myFilesSection.scrollIntoView({
-            behavior: "smooth"
-        });
+                event.preventDefault();
 
 
-        setActiveNav(
-            myFilesNav
+                const filesSection =
+                    document.getElementById(
+                        "files"
+                    );
+
+
+                if (myFilesSection) {
+
+                    myFilesSection.scrollIntoView({
+                        behavior: "smooth"
+                    });
+
+                } else if (filesSection) {
+
+                    filesSection.scrollIntoView({
+                        behavior: "smooth"
+                    });
+                }
+
+
+                setActiveNav(
+                    myFilesNav
+                );
+
+            }
         );
-
     }
-);
 
 
-// ======================================================
-// FAVORITES
-// ======================================================
+    // Favorites
+    if (favoritesNav) {
 
-favoritesNav.addEventListener(
-    "click",
-    function (event) {
+        favoritesNav.addEventListener(
+            "click",
+            function (event) {
 
-        event.preventDefault();
+                event.preventDefault();
 
+                alert(
+                    "Favorites feature will be added next."
+                );
 
-        alert(
-            "Favorites feature will be added next."
+                setActiveNav(
+                    favoritesNav
+                );
+            }
         );
-
-
-        setActiveNav(
-            favoritesNav
-        );
-
     }
-);
 
 
-// ======================================================
-// TRASH
-// ======================================================
+    // Trash
+    if (trashNav) {
 
-trashNav.addEventListener(
-    "click",
-    function (event) {
+        trashNav.addEventListener(
+            "click",
+            function (event) {
 
-        event.preventDefault();
+                event.preventDefault();
 
+                alert(
+                    "Trash feature will be added next."
+                );
 
-        alert(
-            "Trash feature will be added next."
+                setActiveNav(
+                    trashNav
+                );
+            }
         );
-
-
-        setActiveNav(
-            trashNav
-        );
-
     }
-);
+}
 
 
-// ======================================================
+// =====================================================
 // ACTIVE NAVIGATION
-// ======================================================
+// =====================================================
 
-function setActiveNav(
-    activeItem
-) {
+function setActiveNav(activeItem) {
 
     const navItems =
         document.querySelectorAll(
@@ -1055,27 +1306,72 @@ function setActiveNav(
     );
 
 
-    activeItem.classList.add(
-        "active"
+    if (activeItem) {
+
+        activeItem.classList.add(
+            "active"
+        );
+    }
+}
+
+
+// =====================================================
+// LOGOUT
+// =====================================================
+
+function setupLogout() {
+
+    if (!logoutBtn) {
+        return;
+    }
+
+
+    logoutBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            localStorage.removeItem(
+                "token"
+            );
+
+            window.location.href =
+                "login.html";
+
+        }
     );
 }
 
 
-// ======================================================
-// LOGOUT
-// ======================================================
+// =====================================================
+// SECURITY HELPERS
+// =====================================================
 
-logoutBtn.addEventListener(
-    "click",
-    function () {
+function escapeHtml(text) {
 
-        localStorage.removeItem(
-            "token"
-        );
+    const div =
+        document.createElement("div");
 
 
-        window.location.href =
-            "login.html";
+    div.textContent =
+        text || "";
 
-    }
-);
+
+    return div.innerHTML;
+}
+
+
+function escapeFileName(name) {
+
+    return String(name || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
+}
+
+
+// =====================================================
+// START SORT
+// =====================================================
+
+setupSort();

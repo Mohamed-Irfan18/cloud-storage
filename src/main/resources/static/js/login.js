@@ -1,21 +1,46 @@
 const loginForm = document.getElementById("loginForm");
 
-const message = document.getElementById("message");
+const loginMessage =
+    document.getElementById("loginMessage");
+
 
 loginForm.addEventListener("submit", async function (event) {
 
     event.preventDefault();
 
     const username =
-        document.getElementById("username").value;
+        document.getElementById("username").value.trim();
 
     const password =
         document.getElementById("password").value;
 
+
+    // Basic validation
+
+    if (!username || !password) {
+
+        loginMessage.textContent =
+            "Please enter your username and password.";
+
+        loginMessage.style.color = "#dc2626";
+
+        return;
+    }
+
+
+    // Show loading message
+
+    loginMessage.textContent =
+        "Signing you in...";
+
+    loginMessage.style.color =
+        "#2563eb";
+
+
     try {
 
         const response = await fetch(
-            "http://localhost:8081/api/users/login",
+            "/api/users/login",
             {
                 method: "POST",
 
@@ -30,37 +55,105 @@ loginForm.addEventListener("submit", async function (event) {
             }
         );
 
-        const data = await response.json();
 
-        if (response.ok) {
+        const result =
+            await response.text();
 
-            // Store JWT token
-            localStorage.setItem(
-                "token",
-                data.token
-            );
 
-            message.textContent =
-                "Login successful!";
+        console.log(
+            "Login status:",
+            response.status
+        );
 
-            // Go to dashboard
-            window.location.href =
-                "dashboard.html";
+        console.log(
+            "Login response:",
+            result
+        );
 
-        } else {
 
-            message.textContent =
-                data.message || "Login failed.";
+        if (!response.ok) {
 
+            loginMessage.textContent =
+                result || "Invalid username or password.";
+
+            loginMessage.style.color =
+                "#dc2626";
+
+            return;
         }
+
+
+        /*
+         * Backend should return the JWT token.
+         */
+
+        let token;
+
+        try {
+
+            const data =
+                JSON.parse(result);
+
+            token =
+                data.token || data.accessToken;
+
+        } catch (error) {
+
+            // If backend returns plain token
+
+            token = result;
+        }
+
+
+        if (!token) {
+
+            loginMessage.textContent =
+                "Login succeeded, but no token was received.";
+
+            loginMessage.style.color =
+                "#dc2626";
+
+            return;
+        }
+
+
+        // Store JWT token
+
+        localStorage.setItem(
+            "token",
+            token
+        );
+
+
+        loginMessage.textContent =
+            "Login successful!";
+
+        loginMessage.style.color =
+            "#16a34a";
+
+
+        // Go to dashboard
+
+        setTimeout(function () {
+
+            window.location.href =
+                "/dashboard.html";
+
+        }, 700);
+
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Login error:",
+            error
+        );
 
-        message.textContent =
-            "Unable to connect to server.";
+        loginMessage.textContent =
+            "Unable to connect to the server.";
 
+        loginMessage.style.color =
+            "#dc2626";
     }
 
 });
